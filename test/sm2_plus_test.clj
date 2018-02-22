@@ -8,22 +8,46 @@
            2.0))))
 
 (deftest calculate-test
-  (testing "valid input"
-    (let [today "2018-02-14"
-          learning {:interval 1
-                    :updated "2018-02-01"
-                    :difficulty 0.3}]
-      (is (= 0.24117647058823527
-             (:difficulty (sm2/calculate learning 1 today))))
-      (is (= {:difficulty 0.24117647058823527
-              :interval 3
-              :updated 1000000
-              :due-date 1000001}
-             (sm2/calculate learning 1 today))))))
+  (let [learn-map  {:interval 1
+                    :updated "2018-02-13"
+                    :difficulty 0.3}
+        output {:difficulty 0.24117647058823527
+                :interval 3
+                :updated (sm2/string-to-local-date "2018-02-14")
+                :due-date (sm2/string-to-local-date "2018-02-17")}]
 
-; (days-since-epoch (System/currentTimeMillis))
-; (days-since-epoch (java.util.Date.))
-; (days-since-epoch (java.time.Instant/now))
-; (days-since-epoch "2018-02-18T10:15:30.00Z")
-; (str (java.time.Instant/ofEpochMilli (days-since-epoch "2018-02-18T10:15:30.00Z")))
-; (str (.plusDays (java.time.LocalDate/now)  90))
+    (testing "calculates the right difficulty"
+      (is (= (:difficulty (sm2/calculate 1 learn-map "2018-02-14"))
+             0.24117647058823527)))
+
+
+    (testing "returns correct data with only rating passed"
+      (is (= (:difficulty (sm2/calculate  1))
+             0.24117647058823527)))
+
+    (testing "returns correct data with only rating and learn-map as args "
+      (is (= (:difficulty (sm2/calculate  1))
+             0.24117647058823527)))
+
+    (testing "date given as string"
+      (is (= (sm2/calculate 1 learn-map "2018-02-14")
+             output)))
+
+    (testing "date given as DateTime string"
+      (is (= (sm2/calculate 1 learn-map "2018-02-14T12:30:00Z")
+             output)))
+
+    (testing "date given as number of milliseconds"
+      (is (= (sm2/calculate 1 learn-map 1518584400000)
+             output)))
+
+    (testing "date given as java.util.Date"
+      (let [today (.parse
+                     (java.text.SimpleDateFormat. "yyyy-MM-dd")
+                    "2018-02-14")]
+        (is (= (sm2/calculate 1 learn-map today)
+               output))))
+
+    (testing "date given as java.time.LocalDate"
+      (is (= (sm2/calculate 1 learn-map (java.time.LocalDate/parse "2018-02-14"))
+             output)))))
