@@ -16,6 +16,9 @@
 (defn date-from-days [days-in-seconds]
   (java.time.LocalDate/ofEpochDay days-in-seconds))
 
+(defn days-to-string [days]
+  (.toString (date-from-days days)))
+
 (defn string-to-local-date [date]
   (let [date (if (= 10 (count date))
               date
@@ -69,7 +72,9 @@
    (let [today (java.time.LocalDate/now)]
      (calculate rating {:updated (.minusDays today 1 )} today)))
   ([rating learn-map]
-   (calculate rating learn-map (java.time.LocalDate/now)))
+   (if (nil? learn-map)
+     (calculate rating)
+     (calculate rating learn-map (java.time.LocalDate/now))))
   ([rating learn-map now]
    (let [today-in-days (days-since-epoch now)
          updated       (days-since-epoch (if (:updated learn-map)
@@ -80,6 +85,6 @@
          difficulty-weight (- 3.0 (* 1.7  difficulty));
          interval      (new-interval rating difficulty-weight p-overdue)]
       {:interval interval
-       :updated (date-from-days (days-since-epoch now))
+       :updated (days-to-string (days-since-epoch now))
        :difficulty difficulty
-       :due-date (date-from-days (+ interval today-in-days))})))
+       :due-date (days-to-string (+ interval today-in-days))})))
