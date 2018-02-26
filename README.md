@@ -12,6 +12,9 @@ At minimum it takes a rating, this is a value from 0.0 - 1.0, which represents t
 `calculate` returns a map of calculated values:
 
 ```clojure
+
+(caluculate 0.3)
+
 {:difficulty 0.7705882352941176,
  :interval 2,
  :percent-overdue 1.0,
@@ -52,7 +55,7 @@ This value should be serialzied/saved with the item to be learned. Each subseque
              :updated "2018-02-23", :due-date "2018-02-25"}}
 
 ```
-On the 25 the pair is presented again and this time reted with a 0.6 which counts as correct
+Let's say that the user was presented this pair again on the 25th, as recommended, this time she rated it with a 0.6 which counts as correct:
 
 ```clojure
 (def updated-twice (update-pair 0.6 updated-once))
@@ -70,16 +73,21 @@ On the 25 the pair is presented again and this time reted with a 0.6 which count
   :learn-map {:difficulty 0.8058823529411764, :interval 2, :percent-overdue 2,
               :updated "2018-02-27", :due-date "2018-03-01"}}
 ```
+And so on...
 
 ```clojure
 {:german "Abgemacht!", :english "It's a deal",
  :learn-map {:difficulty 0.7470588235294117, :interval 2, :percent-overdue 1,
              :updated "2018-03-01", :due-date "2018-03-03"}}
+```
+And so on...
+
+```clojure
 {:german "Abgemacht!", :english "It's a deal",
  :learn-map {:difficulty 0.688235294117647, :interval 3, :percent-overdue 2,
              :updated "2018-03-03", :due-date "2018-03-06"}}
 ```
-To review a review, you can sort the items by percentage-overdue and review the first 20, as so.
+To present a subset of words, you can sort the items by percentage-overdue and review the most important 20 words.
 
 ```clojure
 (defn most-overdue [pairs]
