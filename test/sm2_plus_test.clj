@@ -13,8 +13,8 @@
                     :difficulty 0.3}
         output {:difficulty 0.24117647058823527
                 :interval 3
-                :updated (sm2/string-to-local-date "2018-02-14")
-                :due-date (sm2/string-to-local-date "2018-02-17")}]
+                :updated  "2018-02-14"
+                :due-date  "2018-02-17"}]
 
     (testing "calculates the right difficulty"
       (is (= (:difficulty (sm2/calculate 1 learn-map "2018-02-14"))

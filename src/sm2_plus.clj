@@ -37,14 +37,16 @@
 
 ;;;; Sm2-plus algorithm
 
-(defn percent-overdue [interval updated today]
-  (let [interval (if (nil? interval)
-                     default-interval-in-days
-                     interval)
-        percentage (/ (- today updated) interval)]
-    (if (> percentage  2.0)
-      2.0
-      percentage)))
+(defn percent-overdue [incorrect? interval updated today]
+  (if incorrect?
+    1.0
+    (let [interval (if (nil? interval)
+                       default-interval-in-days
+                       interval)
+          percentage (/ (- today updated) interval)]
+      (if (> percentage  2.0)
+        2.0
+        percentage))))
 
 (defn within-bounds [number]
   (cond
@@ -55,7 +57,7 @@
 (defn new-interval [rating difficulty-weight percent-overdue]
   (if (= difficulty-weight 0)
     1
-    (if (= rating 1.0)
+    (if (< rating 0.2)
       (Math/round  (/ (/ 1.0 difficulty-weight) difficulty-weight))
       (+ 1 (Math/round (* (- difficulty-weight 1.0) percent-overdue))))))
 
@@ -80,11 +82,14 @@
          updated       (days-since-epoch (if (:updated learn-map)
                                            (:updated learn-map)
                                            (- today-in-days 86400)))
-         p-overdue     (percent-overdue (:interval learn-map) updated today-in-days);
+         incorrect?    (< rating 0.6)
+         p-overdue     (percent-overdue incorrect? (:interval learn-map) updated today-in-days);
          difficulty    (new-difficulty (:difficulty learn-map) rating p-overdue)
          difficulty-weight (- 3.0 (* 1.7  difficulty));
          interval      (new-interval rating difficulty-weight p-overdue)]
-      {:interval interval
-       :updated (days-to-string (days-since-epoch now))
+      {
        :difficulty difficulty
+       :interval interval
+       :percent-overdue p-overdue
+       :updated (days-to-string (days-since-epoch now))
        :due-date (days-to-string (+ interval today-in-days))})))
